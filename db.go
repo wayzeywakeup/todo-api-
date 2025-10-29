@@ -61,3 +61,23 @@ func GetTasks() ([]Task, error) {
 	}
 	return tasks, nil
 }
+
+func CreateTask(title string) (Task, error) {
+	res, err := db.Exec("INSERT INTO tasks (title, done) VALUES (?, ?)", title, false)
+	if err != nil {
+		return Task{}, err
+	}
+
+	id, err := res.LastInsertId()
+	if err != nil {
+		return Task{}, err
+	}
+
+	task := Task{
+		ID: int(id),
+		Title: title,
+		Done: false,
+	}
+
+	return task, nil
+}
