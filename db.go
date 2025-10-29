@@ -8,16 +8,20 @@ import (
 	_ "modernc.org/sqlite"
 )
 
+var db *sql.DB
+
 func initDB() {
-	database, err := sql.Open("sqlite", "./task.db")
+	var err error
+
+	db, err = sql.Open("sqlite", "./task.db")
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer database.Close()
+	defer db.Close()
 
-	statement, err := database.Prepare(
-		`CREATE TABLE IF NOT EXISTS task(
-			id INTEGER PRIMARY KEY,
+	stmt, err := db.Prepare(
+		`CREATE TABLE IF NOT EXISTS tasks(
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			title TEXT,
 			done BOOLEAN
 		)`)
@@ -25,10 +29,35 @@ func initDB() {
 		log.Fatal(err)
 	}
 
-	_, err = statement.Exec()
+	_, err = stmt.Exec()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	fmt.Println("Database initialized successfully")
+}
+
+func GetTasks() ([]Task, error) {
+	rows, err := db.Query("SELECT id, title, done FROM tasks")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var tasks []Task
+
+	for rows.Next() {
+		var t Task
+
+		err := rows.Scan(&t.ID, &t.Title, &t.Done)
+		if err != nil {
+			return nil, err
+		}
+		tasks = append(tasks, t)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return tasks, nil
 }
