@@ -107,3 +107,20 @@ func UpdateTask(id int, done bool) (Task, error) {
 	return t, nil
 }
 
+func DeleteTask(id int) error {
+	res, err := db.Exec("DELETE FROM tasks WHERE id = ?", id)
+	if err != nil {
+		return  err
+	}
+
+	resAffected , err := res.RowsAffected()
+	if err != nil {
+		return  err
+	}
+
+	if resAffected == 0 {
+		return fmt.Errorf("tasl with id %d not found", id)
+	}
+
+	return nil
+}
