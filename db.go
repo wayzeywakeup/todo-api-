@@ -81,3 +81,29 @@ func CreateTask(title string) (Task, error) {
 
 	return task, nil
 }
+
+func UpdateTask(id int, done bool) (Task, error) {
+	res, err := db.Exec("UPDATE tasks SET done = ? WHERE id = ?", id, done)
+	if err != nil {
+		return Task{}, err
+	}
+
+	ressAffected, err := res.RowsAffected()
+	if err != nil {
+		return Task{}, err
+	}
+
+	if ressAffected == 0 {
+		return Task{}, fmt.Errorf("task with id %d not found", id)
+	}
+
+	var t Task
+
+	err = db.QueryRow("SELECT id, title, done FROM tasks WHERE id = ?", id).Scan(t.ID, t.Title, t.Done)
+	if err != nil {
+		return Task{}, err
+	}
+	
+	return t, nil
+}
+
