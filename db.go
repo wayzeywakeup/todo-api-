@@ -74,9 +74,9 @@ func CreateTask(title string) (Task, error) {
 	}
 
 	task := Task{
-		ID: int(id),
+		ID:    int(id),
 		Title: title,
-		Done: false,
+		Done:  false,
 	}
 
 	return task, nil
@@ -103,19 +103,19 @@ func UpdateTask(id int, done bool) (Task, error) {
 	if err != nil {
 		return Task{}, err
 	}
-	
+
 	return t, nil
 }
 
 func DeleteTask(id int) error {
 	res, err := db.Exec("DELETE FROM tasks WHERE id = ?", id)
 	if err != nil {
-		return  err
+		return err
 	}
 
-	resAffected , err := res.RowsAffected()
+	resAffected, err := res.RowsAffected()
 	if err != nil {
-		return  err
+		return err
 	}
 
 	if resAffected == 0 {
